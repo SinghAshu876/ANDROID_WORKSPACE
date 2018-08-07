@@ -1,0 +1,24 @@
+<resources>
+    <string name="app_name">AlkaTV</string>
+
+    <!-- Strings related to login/registration -->
+    <string name="prompt_mobile">Mobile No</string>
+    <string name="prompt_password">Password</string>
+    <string name="prompt_name">Name</string>
+    <string name="action_login_button">Login</string>
+    <string name="action_register_button">Register</string>
+    <string name="action_register_link">Don`t have an account ? Register here !</string>
+    <string name="error_invalid_mobNo">This Mobile Number is incorrect</string>
+    <string name="error_invalid_password">This password is too short</string>
+    <string name="error_invalid_name">This name is too short , please enter minimum 5 characters</string>
+    <string name="error_field_required">This field is required</string>
+    <string name="permission_rationale">"Contacts permissions are needed for providing email
+        completions."
+    </string>
+
+    <!-- Strings related to dashboard -->
+    <string name="menu_search">Search</string>
+    <string name="menu_logout">Logout</string>
+
+    <string name="default_toast_message">"Backend Service is unavailable , please try after some time or contact ADMIN"</string>
+</resources>

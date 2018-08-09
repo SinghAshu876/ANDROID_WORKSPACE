@@ -166,14 +166,13 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             focusView = mPasswordView;
             cancel = true;
         }
-        // Check for a valid password, if the user entered one.
+
         if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
             mPasswordView.setError(getString(R.string.error_invalid_password));
             focusView = mPasswordView;
             cancel = true;
         }
 
-        // Check for a valid mobileNo address.
         if (TextUtils.isEmpty(mobileNo)) {
             mMobileNoView.setError(getString(R.string.error_field_required));
             focusView = mMobileNoView;
@@ -185,12 +184,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         }
 
         if (cancel) {
-            // There was an error; don't attempt login and focus the first
-            // form field with an error.
             focusView.requestFocus();
         } else {
-            // Show a progress spinner, and kick off a background task to
-            // perform the user login attempt.
             showProgress(true);
             mAuthTask = new UserLoginTask(mobileNo, password);
             mAuthTask.execute((Void) null);
@@ -210,14 +205,12 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
     private void showProgress(final boolean show) {
-        // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
-        // for very easy animations. If available, use these APIs to fade-in
-        // the progress spinner.
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
-            int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
+            int longAnimTime = getResources().getInteger(android.R.integer.config_longAnimTime);
 
             mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-            mLoginFormView.animate().setDuration(shortAnimTime).alpha(
+            mLoginFormView.animate().setDuration(longAnimTime).alpha(
                     show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator animation) {
@@ -226,7 +219,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             });
 
             mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            mProgressView.animate().setDuration(shortAnimTime).alpha(
+            mProgressView.animate().setDuration(longAnimTime).alpha(
                     show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator animation) {
@@ -234,8 +227,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 }
             });
         } else {
-            // The ViewPropertyAnimator APIs are not available, so simply show
-            // and hide the relevant UI components.
             mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
             mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
         }
@@ -307,6 +298,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             APIClient.getClient().create(LoginService.class).login(loginRequest).enqueue(new Callback<APIResponse>() {
                 @Override
                 public void onResponse(Call<APIResponse> call, Response<APIResponse> response) {
+                    showProgress(false);
                     Log.i(LOG_TAG, response.toString());
                     if (response != null && response.body() != null && response.body().getResponseType() != null && response.body().getResponseType().equals(AppConstants.SUCCESS)) {
                         navigateToDashboardActivity();
@@ -340,9 +332,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
                 @Override
                 public void onFailure(Call<APIResponse> call, Throwable t) {
-                    Log.e(LOG_TAG, t.getMessage());
+                    showProgress(false);
                     Toast.makeText(LoginActivity.this, R.string.default_toast_message, Toast.LENGTH_LONG).show();
-
                 }
             });
             return null;
@@ -351,7 +342,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         @Override
         protected void onPostExecute(Void params) {
             mAuthTask = null;
-            showProgress(false);
+            //showProgress(false);
         }
 
         @Override

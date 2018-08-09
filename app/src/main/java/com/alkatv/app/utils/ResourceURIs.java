@@ -2,7 +2,7 @@ package com.alkatv.app.utils;
 
 public interface ResourceURIs {
 
-    String HOST_URL = "http://192.168.1.9:9080/";
+    String HOST_URL = "http://192.168.1.6:9080/";
 
     //USERS RESOURCE
     String USERS_SEARCH = "/api/users/get";

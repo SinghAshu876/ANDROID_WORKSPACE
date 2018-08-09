@@ -158,10 +158,10 @@ public class RegistrationActivity extends AppCompatActivity {
     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
     private void showProgress(final boolean show) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
-            int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
+            int longAnimTime = getResources().getInteger(android.R.integer.config_longAnimTime);
 
             mRegistrationFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-            mRegistrationFormView.animate().setDuration(shortAnimTime).alpha(
+            mRegistrationFormView.animate().setDuration(longAnimTime).alpha(
                     show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator animation) {
@@ -170,7 +170,7 @@ public class RegistrationActivity extends AppCompatActivity {
             });
 
             mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            mProgressView.animate().setDuration(shortAnimTime).alpha(
+            mProgressView.animate().setDuration(longAnimTime).alpha(
                     show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator animation) {
@@ -208,6 +208,7 @@ public class RegistrationActivity extends AppCompatActivity {
             APIClient.getClient().create(RegistrationService.class).register(registrationRequest).enqueue(new Callback<APIResponse>() {
                 @Override
                 public void onResponse(Call<APIResponse> call, Response<APIResponse> response) {
+                    showProgress(false);
                     AlertDialog.Builder dlgAlert = new AlertDialog.Builder(RegistrationActivity.this);
                     if (response != null && response.body() != null && response.body().getResponseType() != null && response.body().getResponseType().equals(AppConstants.SUCCESS)) {
                         dlgAlert.setMessage(response.body().getMessage());
@@ -250,7 +251,7 @@ public class RegistrationActivity extends AppCompatActivity {
 
                 @Override
                 public void onFailure(Call<APIResponse> call, Throwable t) {
-                    Log.i("onFailure", t.getMessage());
+                    showProgress(false);
                     Toast.makeText(RegistrationActivity.this, R.string.default_toast_message, Toast.LENGTH_LONG).show();
                 }
             });
@@ -266,7 +267,7 @@ public class RegistrationActivity extends AppCompatActivity {
         @Override
         protected void onCancelled() {
             userRegistrationTask = null;
-            showProgress(false);
+            //showProgress(false);
         }
     }
 

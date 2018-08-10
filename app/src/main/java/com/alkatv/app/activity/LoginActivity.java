@@ -1,8 +1,7 @@
 package com.alkatv.app.activity;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -36,7 +35,7 @@ import com.alkatv.app.R;
 import com.alkatv.app.requests.LoginRequest;
 import com.alkatv.app.responses.APIResponse;
 import com.alkatv.app.responses.Error;
-import com.alkatv.app.services.LoginService;
+import com.alkatv.app.services.AppUsersService;
 import com.alkatv.app.services.APIClient;
 import com.alkatv.app.utils.AppConstants;
 
@@ -186,7 +185,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         if (cancel) {
             focusView.requestFocus();
         } else {
-            showProgress(true);
             mAuthTask = new UserLoginTask(mobileNo, password);
             mAuthTask.execute((Void) null);
         }
@@ -198,38 +196,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
     private boolean isPasswordValid(String password) {
         return password.length() == 4;
-    }
-
-    /**
-     * Shows the progress UI and hides the login form.
-     */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
-    private void showProgress(final boolean show) {
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
-            int longAnimTime = getResources().getInteger(android.R.integer.config_longAnimTime);
-
-            mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-            mLoginFormView.animate().setDuration(longAnimTime).alpha(
-                    show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-                }
-            });
-
-            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            mProgressView.animate().setDuration(longAnimTime).alpha(
-                    show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-                }
-            });
-        } else {
-            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-        }
     }
 
     @Override
@@ -279,13 +245,22 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      * the user.
      */
     public class UserLoginTask extends AsyncTask<Void, Void, Void> {
-
+        private ProgressDialog asyncDialog ;
         private final String mMobNo;
         private final String mPassword;
 
         UserLoginTask(String mobileNo, String password) {
             mMobNo = mobileNo;
             mPassword = password;
+            asyncDialog = new ProgressDialog(LoginActivity.this);
+        }
+
+        @Override
+        protected void onPreExecute() {
+            asyncDialog.setMessage(getString(R.string.progress_dialog_msg));
+            asyncDialog.show();
+            asyncDialog.setCancelable(false);
+            super.onPreExecute();
         }
 
         @Override
@@ -295,11 +270,11 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             loginRequest.setUserName(mMobNo);
             loginRequest.setPwd(mPassword);
 
-            APIClient.getClient().create(LoginService.class).login(loginRequest).enqueue(new Callback<APIResponse>() {
+            APIClient.getClient().create(AppUsersService.class).login(loginRequest).enqueue(new Callback<APIResponse>() {
                 @Override
                 public void onResponse(Call<APIResponse> call, Response<APIResponse> response) {
-                    showProgress(false);
                     Log.i(LOG_TAG, response.toString());
+                    asyncDialog.dismiss();
                     if (response != null && response.body() != null && response.body().getResponseType() != null && response.body().getResponseType().equals(AppConstants.SUCCESS)) {
                         navigateToDashboardActivity();
                     } else {
@@ -332,7 +307,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
                 @Override
                 public void onFailure(Call<APIResponse> call, Throwable t) {
-                    showProgress(false);
+                    asyncDialog.dismiss();
                     Toast.makeText(LoginActivity.this, R.string.default_toast_message, Toast.LENGTH_LONG).show();
                 }
             });
@@ -342,13 +317,11 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         @Override
         protected void onPostExecute(Void params) {
             mAuthTask = null;
-            //showProgress(false);
         }
 
         @Override
         protected void onCancelled() {
             mAuthTask = null;
-            showProgress(false);
         }
     }
 
@@ -356,10 +329,12 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     public void navigateToRegistationActivity(View view) {
         Intent intent = new Intent(this, RegistrationActivity.class);
         startActivity(intent);
+        LoginActivity.this.finish();
     }
 
     public void navigateToDashboardActivity() {
         Intent intent = new Intent(this, DashboardActivity.class);
         startActivity(intent);
+        LoginActivity.this.finish();
     }
 }

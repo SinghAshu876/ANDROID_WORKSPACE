@@ -3,6 +3,7 @@ package com.alkatv.app.activity;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -14,7 +15,7 @@ import com.alkatv.app.requests.RegistrationRequest;
 import com.alkatv.app.responses.APIResponse;
 import com.alkatv.app.responses.Error;
 import com.alkatv.app.services.APIClient;
-import com.alkatv.app.services.RegistrationService;
+import com.alkatv.app.services.AppUsersService;
 import com.alkatv.app.utils.AppConstants;
 
 import android.os.Build;
@@ -136,7 +137,6 @@ public class RegistrationActivity extends AppCompatActivity {
         if (cancel) {
             focusView.requestFocus();
         } else {
-            showProgress(true);
             userRegistrationTask = new UserRegistrationTask(mobileNo, password, name);
             userRegistrationTask.execute((Void) null);
         }
@@ -154,37 +154,8 @@ public class RegistrationActivity extends AppCompatActivity {
         return password.length() == 4;
     }
 
-
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
-    private void showProgress(final boolean show) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
-            int longAnimTime = getResources().getInteger(android.R.integer.config_longAnimTime);
-
-            mRegistrationFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-            mRegistrationFormView.animate().setDuration(longAnimTime).alpha(
-                    show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    mRegistrationFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-                }
-            });
-
-            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            mProgressView.animate().setDuration(longAnimTime).alpha(
-                    show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-                }
-            });
-        } else {
-            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            mRegistrationFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-        }
-    }
-
     public class UserRegistrationTask extends AsyncTask<Void, Void, Void> {
-
+        private ProgressDialog asyncDialog ;
         private final String mMobNo;
         private final String mPassword;
         private final String mName;
@@ -193,6 +164,15 @@ public class RegistrationActivity extends AppCompatActivity {
             mMobNo = mobileNo;
             mPassword = password;
             mName = name;
+            asyncDialog = new ProgressDialog(RegistrationActivity.this);
+        }
+
+        @Override
+        protected void onPreExecute() {
+            asyncDialog.setMessage(getString(R.string.progress_dialog_msg));
+            asyncDialog.show();
+            asyncDialog.setCancelable(false);
+            super.onPreExecute();
         }
 
         @Override
@@ -201,14 +181,12 @@ public class RegistrationActivity extends AppCompatActivity {
             registrationRequest.setName(mName);
             registrationRequest.setPwd(mPassword);
             registrationRequest.setUserName(mMobNo);
-            Log.i(LOG_TAG, registrationRequest.getUserName());
-            Log.i(LOG_TAG, registrationRequest.getPwd());
-            Log.i(LOG_TAG, registrationRequest.getName());
 
-            APIClient.getClient().create(RegistrationService.class).register(registrationRequest).enqueue(new Callback<APIResponse>() {
+
+            APIClient.getClient().create(AppUsersService.class).register(registrationRequest).enqueue(new Callback<APIResponse>() {
                 @Override
                 public void onResponse(Call<APIResponse> call, Response<APIResponse> response) {
-                    showProgress(false);
+                    asyncDialog.dismiss();
                     AlertDialog.Builder dlgAlert = new AlertDialog.Builder(RegistrationActivity.this);
                     if (response != null && response.body() != null && response.body().getResponseType() != null && response.body().getResponseType().equals(AppConstants.SUCCESS)) {
                         dlgAlert.setMessage(response.body().getMessage());
@@ -251,7 +229,7 @@ public class RegistrationActivity extends AppCompatActivity {
 
                 @Override
                 public void onFailure(Call<APIResponse> call, Throwable t) {
-                    showProgress(false);
+                    asyncDialog.dismiss();
                     Toast.makeText(RegistrationActivity.this, R.string.default_toast_message, Toast.LENGTH_LONG).show();
                 }
             });
@@ -261,18 +239,17 @@ public class RegistrationActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Void params) {
             userRegistrationTask = null;
-            showProgress(false);
         }
 
         @Override
         protected void onCancelled() {
             userRegistrationTask = null;
-            //showProgress(false);
         }
     }
 
     public void navigateToLoginActivity() {
         Intent intent = new Intent(this, LoginActivity.class);
         startActivity(intent);
+        RegistrationActivity.this.finish();
     }
 }

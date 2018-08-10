@@ -12,10 +12,10 @@
     <string name="error_invalid_password">This password is too short</string>
     <string name="error_invalid_name">This name is too short , please enter minimum 5 characters</string>
     <string name="error_field_required">This field is required</string>
+    <string name="progress_dialog_msg">Processing ...</string>
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
-
 
 
     <string name="default_toast_message">"Backend Service is unavailable , please try after some time or contact ADMIN"</string>
@@ -46,4 +46,7 @@
     <string name="action_clear_all">Clear All</string>
     <string name="action_mark_all_read">Mark All as Read</string>
     <string name="privacy_policy">Privacy Policy</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

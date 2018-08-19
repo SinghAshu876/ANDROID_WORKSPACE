@@ -22,7 +22,7 @@ public class APIClient {
             HttpLoggingInterceptor httpLoggingInterceptor = new HttpLoggingInterceptor();
             httpLoggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
             httpClient.addNetworkInterceptor(httpLoggingInterceptor);
-            httpClient.connectTimeout(10, TimeUnit.SECONDS);
+            httpClient.connectTimeout(20, TimeUnit.SECONDS);
 
             Retrofit.Builder builder = new Retrofit.Builder()
                     .baseUrl(ResourceURIs.HOST_URL)

@@ -5,10 +5,48 @@
     android:layout_height="match_parent"
     tools:context=".fragments.SearchFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+    <ProgressBar
+        android:id="@+id/search_progress"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:visibility="gone" />
 
+    <ScrollView
+        android:id="@+id/search_form"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:id="@+id/search_by_id_form"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/search_by_id_text"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_width="fill_parent"
+                    android:hint="@string/prompt_search_by_cust_id"
+                    android:inputType="number"
+                    android:maxLength="5"
+                    android:maxLines="1"
+                    android:singleLine="true" />
+
+                <Button
+                    android:id="@+id/search_by_id_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="30dp"
+                    android:background="@drawable/round_button"
+                    android:text="@string/action_search_button"
+                    android:textAppearance="@style/TextAppearance.AppCompat"
+                    android:textColor="@color/white1" />
+
+        </LinearLayout>
+    </ScrollView>
 </FrameLayout>
